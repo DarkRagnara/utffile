@@ -35,6 +35,34 @@ func TestUTF8BOM(t *testing.T) {
 	testFile(t, "samples/utf8-bom.txt", expectedString)
 }
 
+func TestEmptyFileSlowRead(t *testing.T) {
+	testFileSlowRead(t, "samples/empty.txt", "")
+}
+
+func TestShortFile1SlowRead(t *testing.T) {
+	testFileSlowRead(t, "samples/1byte.txt", "a")
+}
+
+func TestShortFile2SlowRead(t *testing.T) {
+	testFileSlowRead(t, "samples/2byte.txt", "ab")
+}
+
+func TestShortFile3SlowRead(t *testing.T) {
+	testFileSlowRead(t, "samples/3byte.txt", "abc")
+}
+
+func TestShortFile4SlowRead(t *testing.T) {
+	testFileSlowRead(t, "samples/4byte.txt", "abcd")
+}
+
+func TestUTF8SlowRead(t *testing.T) {
+	testFileSlowRead(t, "samples/utf8.txt", expectedString)
+}
+
+func TestUTF8BOMSlowRead(t *testing.T) {
+	testFileSlowRead(t, "samples/utf8-bom.txt", expectedString)
+}
+
 func TestWrapCloser(t *testing.T) {
 	sr := strings.NewReader("abc")
 	noCloser := Wrap(sr)
@@ -49,6 +77,29 @@ func TestWrapCloser(t *testing.T) {
 	if _, ok := closer.(io.ReadCloser); !ok {
 		t.Fatal("io.ReadCloser should be wrapped as io.ReadCloser")
 	}
+}
+
+func testFileSlowRead(t *testing.T, name string, expected string) {
+	file, err := Open(name)
+	assertNoError(t, err)
+	defer file.(io.ReadCloser).Close()
+
+	var contents strings.Builder
+	var buf [1]byte
+	for {
+		n, err := file.Read(buf[:])
+		if n == 1 {
+			contents.WriteByte(buf[0])
+		}
+		if err == io.EOF {
+			break
+		}
+		assertNoError(t, err)
+	}
+
+	assertNoError(t, err)
+
+	assertStringEqual(t, expected, contents.String())
 }
 
 func testFile(t *testing.T, name string, expected string) {
