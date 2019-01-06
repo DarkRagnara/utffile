@@ -51,7 +51,7 @@ func (r reader) Read(b []byte) (int, error) {
 
 		wanted := int(math.Min(float64(n), float64(len(b))))
 
-		if err != nil || n < 3 {
+		if err != nil || n < 2 {
 			copy(b, (*r.buf)[:wanted])
 			(*r.buf) = (*r.buf)[wanted:]
 			return wanted, err

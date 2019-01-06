@@ -43,6 +43,18 @@ func TestUTF16BE(t *testing.T) {
 	testFile(t, "samples/utf16-be.txt", expectedString)
 }
 
+func TestEmptyUTF8BOM(t *testing.T) {
+	testFile(t, "samples/empty-utf8-bom.txt", "")
+}
+
+func TestEmptyUTF16LE(t *testing.T) {
+	testFile(t, "samples/empty-utf16-le.txt", "")
+}
+
+func TestEmptyUTF16BE(t *testing.T) {
+	testFile(t, "samples/empty-utf16-be.txt", "")
+}
+
 func TestEmptyFileSlowRead(t *testing.T) {
 	testFileSlowRead(t, "samples/empty.txt", "")
 }
