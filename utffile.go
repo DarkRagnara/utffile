@@ -1,4 +1,4 @@
-//package utffile provides two helper functions to transparently read files encoded as plain UTF8, UTF8 with BOM, UTF16-LE with BOM or UTF16-BE with BOM as if they were plain UTF8 files.
+//Package utffile provides two helper functions to transparently read files encoded as plain UTF8, UTF8 with BOM, UTF16-LE with BOM or UTF16-BE with BOM as if they were plain UTF8 files.
 //All files without a BOM are treated as UTF8 - this package does not support other encodings such as latin-1!
 package utffile
 
