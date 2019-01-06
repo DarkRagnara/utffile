@@ -35,6 +35,14 @@ func TestUTF8BOM(t *testing.T) {
 	testFile(t, "samples/utf8-bom.txt", expectedString)
 }
 
+func TestUTF16LE(t *testing.T) {
+	testFile(t, "samples/utf16-le.txt", expectedString)
+}
+
+func TestUTF16BE(t *testing.T) {
+	testFile(t, "samples/utf16-be.txt", expectedString)
+}
+
 func TestEmptyFileSlowRead(t *testing.T) {
 	testFileSlowRead(t, "samples/empty.txt", "")
 }
@@ -61,6 +69,14 @@ func TestUTF8SlowRead(t *testing.T) {
 
 func TestUTF8BOMSlowRead(t *testing.T) {
 	testFileSlowRead(t, "samples/utf8-bom.txt", expectedString)
+}
+
+func TestUTF16LESlowRead(t *testing.T) {
+	testFileSlowRead(t, "samples/utf16-le.txt", expectedString)
+}
+
+func TestUTF16BESlowRead(t *testing.T) {
+	testFileSlowRead(t, "samples/utf16-be.txt", expectedString)
 }
 
 func TestWrapCloser(t *testing.T) {

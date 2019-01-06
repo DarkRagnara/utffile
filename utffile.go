@@ -1,6 +1,10 @@
 package utffile
 
 import (
+	"bytes"
+	"golang.org/x/text/encoding"
+	"golang.org/x/text/encoding/unicode"
+	"golang.org/x/text/transform"
 	"io"
 	"math"
 	"os"
@@ -24,15 +28,18 @@ func Open(name string) (io.Reader, error) {
 }
 
 var utf8bom = [3]byte{0xef, 0xbb, 0xbf}
+var utf16lebom = [2]byte{0xff, 0xfe}
+var utf16bebom = [2]byte{0xfe, 0xff}
 
 type reader struct {
 	io.Reader
 	initialRead *bool
 	buf         *[]byte
+	utf16reader **transform.Reader
 }
 
 func newReader(r io.Reader) reader {
-	return reader{Reader: r, buf: new([]byte), initialRead: new(bool)}
+	return reader{Reader: r, buf: new([]byte), initialRead: new(bool), utf16reader: new(*transform.Reader)}
 }
 
 func (r reader) Read(b []byte) (int, error) {
@@ -51,12 +58,24 @@ func (r reader) Read(b []byte) (int, error) {
 		}
 		if equalSlice((*r.buf)[:], utf8bom[:]) {
 			*r.buf = nil
+		} else if equalSlice((*r.buf)[:2], utf16lebom[:]) {
+			r.setUTF16Decoder(unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM))
+		} else if equalSlice((*r.buf)[:2], utf16bebom[:]) {
+			r.setUTF16Decoder(unicode.UTF16(unicode.BigEndian, unicode.IgnoreBOM))
 		}
 	}
 	if len(*r.buf) != 0 {
 		return r.readFromBufFirst(b)
+	} else if *r.utf16reader != nil {
+		return (*r.utf16reader).Read(b)
 	}
 	return r.Reader.Read(b)
+}
+
+func (r reader) setUTF16Decoder(utf16 encoding.Encoding) {
+	reader := io.MultiReader(bytes.NewReader((*r.buf)[2:]), r.Reader)
+	*r.utf16reader = transform.NewReader(reader, utf16.NewDecoder())
+	*r.buf = (*r.buf)[0:0]
 }
 
 func (r reader) readFromBufFirst(b []byte) (int, error) {
