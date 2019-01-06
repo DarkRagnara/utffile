@@ -3,6 +3,7 @@ package utffile
 import (
 	"io"
 	"io/ioutil"
+	"os"
 	"strings"
 	"testing"
 )
@@ -91,6 +92,18 @@ func TestUTF16BESlowRead(t *testing.T) {
 	testFileSlowRead(t, "samples/utf16-be.txt", expectedString)
 }
 
+func TestEmptyUTF8BOMSlowRead(t *testing.T) {
+	testFileSlowRead(t, "samples/empty-utf8-bom.txt", "")
+}
+
+func TestEmptyUTF16LESlowRead(t *testing.T) {
+	testFileSlowRead(t, "samples/empty-utf16-le.txt", "")
+}
+
+func TestEmptyUTF16BESlowRead(t *testing.T) {
+	testFileSlowRead(t, "samples/empty-utf16-be.txt", "")
+}
+
 func TestWrapCloser(t *testing.T) {
 	sr := strings.NewReader("abc")
 	noCloser := Wrap(sr)
@@ -104,6 +117,16 @@ func TestWrapCloser(t *testing.T) {
 
 	if _, ok := closer.(io.ReadCloser); !ok {
 		t.Fatal("io.ReadCloser should be wrapped as io.ReadCloser")
+	}
+}
+
+func TestOpenErrorPassThrough(t *testing.T) {
+	_, expectedErr := os.Open("NotExisting")
+	_, actualErr := Open("NotExisting")
+
+	expectedPathErr := expectedErr.(*os.PathError)
+	if actualPathErr, ok := actualErr.(*os.PathError); !ok || *expectedPathErr != *actualPathErr {
+		t.Fatalf("Expected error '%v' (%T), but got '%v' (%T)", expectedErr, expectedErr, actualErr, actualErr)
 	}
 }
 
