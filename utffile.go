@@ -1,3 +1,5 @@
+//package utffile provides two helper functions to transparently read files encoded as plain UTF8, UTF8 with BOM, UTF16-LE with BOM or UTF16-BE with BOM as if they were plain UTF8 files.
+//All files without a BOM are treated as UTF8 - this package does not support other encodings such as latin-1!
 package utffile
 
 import (
@@ -10,6 +12,7 @@ import (
 	"os"
 )
 
+//Wrap returns a reader that reads from the given reader and transforms the input into plain UTF8 as necessary. If the given reader was an io.ReadCloser, the returned reader also will be io.ReadCloser.
 func Wrap(r io.Reader) io.Reader {
 	switch r.(type) {
 	case io.ReadCloser:
@@ -19,6 +22,7 @@ func Wrap(r io.Reader) io.Reader {
 	}
 }
 
+//Open calls os.Open. If the file could be opened successfully, it is wrapped by Wrap and then returned.
 func Open(name string) (io.Reader, error) {
 	file, err := os.Open(name)
 	if err != nil {
